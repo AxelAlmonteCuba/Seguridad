@@ -1,14 +1,13 @@
 package Lab_01;
 
 import java.io.*;
-import java.util.Iterator;
 
 public class Poema {
 	public static void main(String[] args) {
 		String ruta = "C:\\Users\\ASUS\\Documents\\poema.txt";
 		String texto = "";
 		BufferedReader bf = null;
-		try  {
+		try {
 			bf = new BufferedReader(new FileReader(ruta));
 			String line = "";
 			while ((line = bf.readLine()) != null) {
@@ -20,17 +19,54 @@ public class Poema {
 		catch (IOException e) {
 			System.out.println("erro al abri archivo");
 		}
-		mostrarTabla(Frecuencias(texto));
-		
+		System.out.println("------------------------------------");
+		System.out.println(texto);
+		texto = Sustitucion(texto);
+		System.out.println("------------------------------------");
+		System.out.println(texto);
+		texto = EliminaTildes(texto);
+		texto = ConvertirMayuscula(texto);
+		System.out.println("------------------------------------");
+		System.out.println(texto);
+		texto = EliminarEspaciosSignos(texto);
+		System.out.println("------------------------------------");
+		System.out.println(texto);
+		String archivoModificado = "PRACTICA1_PRE.TXT";
+		GuardarResultado(texto);
+		texto = "";
 		try {
-			
-			System.out.println(padding(Unicode8(texto)));
-			System.out.println(padding(Unicode8(texto)).length());
+			bf = new BufferedReader(new FileReader(archivoModificado));
+			String line = "";
+			while ((line = bf.readLine()) != null) {
+				texto += line + "\n";
+
+			}
+		}
+
+		catch (IOException e) {
+			System.out.println("erro al abri archivo");
+		}
+		System.out.println("------------------------------------");
+		System.out.println(texto);
+		System.out.println("------------------------------------");
+		mostrarTabla(Frecuencias(texto));
+
+		try {
+			String texto2 = Unicode8(texto);
+			System.out.println("------------------------------------");
+			System.out.println(texto2);
+			texto = ConvertirSegunAlfabeto(texto);
+			System.out.println("------------------------------------");
+			System.out.println(texto);
+			texto = padding(texto);
+			System.out.println("------------------------------------");
+			System.out.println(texto);
+			System.out.println("Cantidad de letras despues del padding: " + ContarCaracteres(texto));
+
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
 //		Unicode8(texto);
-		
 
 	}
 
@@ -145,14 +181,14 @@ public class Poema {
 			String unicode = "";
 			StringBuilder texto = new StringBuilder(poema);
 			for (int i = 0; i < texto.length(); i++) {
-				if(texto.charAt(i) != '\n') {
+				if (texto.charAt(i) != '\n') {
 					String caracte = String.valueOf(texto.charAt(i));
 					byte[] caracter = caracte.getBytes();
 					for (byte b : caracter) {
 						unicode += b;
 					}
 				}
-								 
+
 			}
 			return unicode;
 		} catch (Exception e) {
@@ -160,6 +196,7 @@ public class Poema {
 			throw e;
 		}
 	}
+
 	public static String padding(String poema) {
 		try {
 			String Padding = "";
@@ -167,28 +204,127 @@ public class Poema {
 			StringBuilder texto = new StringBuilder(poema);
 			for (int i = 0; i < texto.length(); i++) {
 				Padding += texto.charAt(i);
-				if(contador%13 == 0) {
-					Padding += "EPIS";
+				if ('A' < texto.charAt(i) && 'Z' > texto.charAt(i)) {
+					if (contador % 13 == 0) {
+
+						Padding += "EPIS";
+					}
+					contador++;
 				}
-				contador++;
-								 
+
 			}
-			int cantidad = Padding.length();
+			int cantidad = ContarCaracteres(Padding);
+			System.out.println("Cantidad de letras antes del padding: " + cantidad);
 			int sobrante = cantidad % 5;
-			if(sobrante == 0) {
+			if (sobrante == 0) {
 				return Padding;
-			}
-			else {
-				int cantZ = 5-sobrante;
+			} else {
+				int cantZ = 5 - sobrante;
 				for (int i = 0; i < cantZ; i++) {
 					Padding += "Z";
 				}
 				return Padding;
 			}
-			
+
 		} catch (Exception e) {
 			System.out.println("erros de codifcaion");
 			throw e;
+		}
+	}
+
+	public static int ContarCaracteres(String texto) {
+		int conteo = 0;
+
+		for (int i = 0; i < texto.length(); i++) {
+			char caracter = texto.charAt(i);
+			if (caracter != '\n') {
+				conteo++;
+			}
+		}
+
+		return conteo;
+	}
+
+	
+
+	public static String ConvertirMayuscula(String texto) {
+		char[] characterPoema = texto.toCharArray();
+		for (int i = 0; i < characterPoema.length; i++) {
+			if (characterPoema[i] >= 'a' && characterPoema[i] <= 'z')
+				characterPoema[i] = (char) (characterPoema[i] - 'a' + 'A');
+		}
+		String nuevo = new String(characterPoema);
+		return nuevo;
+	}
+
+	public static String EliminarEspaciosSignos(String texto) {
+		String nuevo = "";
+		for (int i = 0; i < texto.length(); i++) {
+			char caracter = texto.charAt(i);
+			if (!(caracter == ' ' || esSignoDePuntuacion(caracter)))
+				nuevo += caracter;
+		}
+		return nuevo;
+	}
+
+	private static boolean esSignoDePuntuacion(char caracter) {
+		char[] signosDePuntuacion = { '.', ',', '!', '?', ';', ':', '"', '\'', '(', ')', '[', ']', '{', '}', '-', '_',
+				'/' };
+		for (int i = 0; i < signosDePuntuacion.length; i++) {
+			if (caracter == signosDePuntuacion[i])
+				return true;
+		}
+		return false;
+	}
+
+	public static String AlfabetoResultante(String texto) {
+		char[] caracterLista = texto.toCharArray();
+		String alfabeto = "";
+		for (char caracter = 'A'; caracter <= 'Z'; caracter++) {
+			for (int i = 0; i < caracterLista.length; i++) {
+				if (caracterLista[i] == caracter && alfabeto.indexOf(caracter) == -1)
+					alfabeto += caracter;
+			}
+		}
+		return alfabeto;
+	}
+
+	public static int ObtenerLongitud(String texto) {
+		int longitud = texto.length();
+		return longitud;
+	}
+
+	public static String ConvertirSegunAlfabeto(String texto) {
+		String alfabeto = "ZYXWVUTSRQPONMLKJIHGFEDCBA";
+		char[] characterPoema = texto.toCharArray();
+		char[] nuevo = new char[characterPoema.length];
+		for (int i = 0; i < characterPoema.length; i++) {
+			char caracter = characterPoema[i];
+			char caracterCifrado = caracter;
+			if ((caracter >= 'A' && caracter <= 'Z') || (caracter >= 'a' && caracter <= 'z')) {
+				int indiceEnAlfabeto = 0;
+				if (caracter >= 'a' && caracter <= 'z') {
+					caracter -= 'a' - 'A';
+				}
+				indiceEnAlfabeto = caracter - 'A';
+				if (indiceEnAlfabeto >= 0 && indiceEnAlfabeto < alfabeto.length()) {
+					caracterCifrado = alfabeto.charAt(indiceEnAlfabeto);
+				}
+			}
+			nuevo[i] = caracterCifrado;
+		}
+		return new String(nuevo);
+	}
+
+	public static void GuardarResultado(String texto) {
+		String archivo = "PRACTICA1_PRE.TXT";
+		try (FileWriter escritor = new FileWriter(archivo)) {
+			escritor.write(texto);
+			escritor.close();
+			System.out.println("Los resultados se han guardado en el archivo " + archivo);
+		} catch (IOException e) {
+			System.out.println("Error al guardar los resultados en el archivo.");
+			e.printStackTrace();
 		}
 	}
 
