@@ -1,6 +1,7 @@
 package Lab_01;
 
 import java.io.*;
+import java.util.*;
 
 public class Poema {
 	public static void main(String[] args) {
@@ -50,6 +51,12 @@ public class Poema {
 		System.out.println(texto);
 		System.out.println("------------------------------------");
 		mostrarTabla(Frecuencias(texto));
+		// Ataque de Kasiski
+        HashMap<String, List<Integer>> trigramas = EncontrarTrigramas(texto);
+        HashMap<String, List<Integer>> distancias = CalcularDistancias(trigramas);
+        System.out.println("-------------------------------------");
+        System.out.println("Trigramas encontrados: " + trigramas);
+        System.out.println("Distancias entre trigramas: " + distancias);
 
 		try {
 			String texto2 = Unicode8(texto);
@@ -327,5 +334,37 @@ public class Poema {
 			e.printStackTrace();
 		}
 	}
+	public static HashMap<String, List<Integer>> EncontrarTrigramas(String texto) {
+        HashMap<String, List<Integer>> trigramas = new HashMap<>();
+        for (int i = 0; i < texto.length() - 2; i++) {
+            String trigram = texto.substring(i, i + 3);
+            if (!trigramas.containsKey(trigram)) {
+                List<Integer> posiciones = new ArrayList<>();
+                posiciones.add(i);
+                trigramas.put(trigram, posiciones);
+            } else {
+                trigramas.get(trigram).add(i);
+            }
+        }
+        return trigramas;
+    }
+
+    public static HashMap<String, List<Integer>> CalcularDistancias(HashMap<String, List<Integer>> trigramas) {
+        HashMap<String, List<Integer>> distancias = new HashMap<>();
+        for (Map.Entry<String, List<Integer>> entry : trigramas.entrySet()) {
+            String trigram = entry.getKey();
+            List<Integer> posiciones = entry.getValue();
+            List<Integer> distanciasTrigrama = new ArrayList<>();
+            if (posiciones.size() > 1) {
+                for (int i = 1; i < posiciones.size(); i++) {
+                    int distancia = posiciones.get(i) - posiciones.get(i - 1);
+                    distanciasTrigrama.add(distancia);
+                }
+            }
+            distancias.put(trigram, distanciasTrigrama);
+        }
+        return distancias;
+    }
+
 
 }
