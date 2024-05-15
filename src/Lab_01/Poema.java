@@ -26,6 +26,8 @@ public class Poema {
 		System.out.println("------------------------------------");
 		System.out.println(texto);
 		texto = EliminaTildes(texto);
+		System.out.println("------------------------------------");
+		System.out.println(texto);
 		texto = ConvertirMayuscula(texto);
 		System.out.println("------------------------------------");
 		System.out.println(texto);
@@ -51,12 +53,15 @@ public class Poema {
 		System.out.println(texto);
 		System.out.println("------------------------------------");
 		mostrarTabla(Frecuencias(texto));
+		int[] frecuencias = Frecuencias(texto);
+		List<Character> letrasMasFrecuentes = encontrarLetrasMasFrecuentes(frecuencias, 5);
+	    System.out.println("\nLas 5 letras más frecuentes son: " + letrasMasFrecuentes);
 		// Ataque de Kasiski
-        HashMap<String, List<Integer>> trigramas = EncontrarTrigramas(texto);
-        HashMap<String, List<Integer>> distancias = CalcularDistancias(trigramas);
-        System.out.println("-------------------------------------");
-        System.out.println("Trigramas encontrados: " + trigramas);
-        System.out.println("Distancias entre trigramas: " + distancias);
+		HashMap<String, List<Integer>> trigramas = EncontrarTrigramas(texto);
+		HashMap<String, List<Integer>> distancias = CalcularDistancias(trigramas);
+		System.out.println("-------------------------------------");
+		System.out.println("Trigramas encontrados: " + trigramas);
+		System.out.println("Distancias entre trigramas: " + distancias);
 
 		try {
 			String texto2 = Unicode8(texto);
@@ -183,6 +188,23 @@ public class Poema {
 		}
 	}
 
+	public static List<Character> encontrarLetrasMasFrecuentes(int[] frecuencias, int cantidad) {
+		Map<Character, Integer> mapaFrecuencias = new HashMap<>();
+		for (int i = 0; i < frecuencias.length; i++) {
+			char letra = (char) (i + 'A');
+			mapaFrecuencias.put(letra, frecuencias[i]);
+		}
+
+		List<Character> letrasMasFrecuentes = new ArrayList<>();
+		for (int i = 0; i < cantidad; i++) {
+			char letraMasFrecuente = Collections.max(mapaFrecuencias.entrySet(), Map.Entry.comparingByValue()).getKey();
+			letrasMasFrecuentes.add(letraMasFrecuente);
+			mapaFrecuencias.remove(letraMasFrecuente);
+		}
+
+		return letrasMasFrecuentes;
+	}
+
 	public static String Unicode8(String poema) throws Exception {
 		try {
 			String unicode = "";
@@ -194,6 +216,9 @@ public class Poema {
 					for (byte b : caracter) {
 						unicode += b;
 					}
+				}
+				else {
+					unicode += "\n";
 				}
 
 			}
@@ -251,8 +276,6 @@ public class Poema {
 
 		return conteo;
 	}
-
-	
 
 	public static String ConvertirMayuscula(String texto) {
 		char[] characterPoema = texto.toCharArray();
@@ -334,37 +357,37 @@ public class Poema {
 			e.printStackTrace();
 		}
 	}
+
 	public static HashMap<String, List<Integer>> EncontrarTrigramas(String texto) {
-        HashMap<String, List<Integer>> trigramas = new HashMap<>();
-        for (int i = 0; i < texto.length() - 2; i++) {
-            String trigram = texto.substring(i, i + 3);
-            if (!trigramas.containsKey(trigram)) {
-                List<Integer> posiciones = new ArrayList<>();
-                posiciones.add(i);
-                trigramas.put(trigram, posiciones);
-            } else {
-                trigramas.get(trigram).add(i);
-            }
-        }
-        return trigramas;
-    }
+		HashMap<String, List<Integer>> trigramas = new HashMap<>();
+		for (int i = 0; i < texto.length() - 2; i++) {
+			String trigram = texto.substring(i, i + 3);
+			if (!trigramas.containsKey(trigram)) {
+				List<Integer> posiciones = new ArrayList<>();
+				posiciones.add(i);
+				trigramas.put(trigram, posiciones);
+			} else {
+				trigramas.get(trigram).add(i);
+			}
+		}
+		return trigramas;
+	}
 
-    public static HashMap<String, List<Integer>> CalcularDistancias(HashMap<String, List<Integer>> trigramas) {
-        HashMap<String, List<Integer>> distancias = new HashMap<>();
-        for (Map.Entry<String, List<Integer>> entry : trigramas.entrySet()) {
-            String trigram = entry.getKey();
-            List<Integer> posiciones = entry.getValue();
-            List<Integer> distanciasTrigrama = new ArrayList<>();
-            if (posiciones.size() > 1) {
-                for (int i = 1; i < posiciones.size(); i++) {
-                    int distancia = posiciones.get(i) - posiciones.get(i - 1);
-                    distanciasTrigrama.add(distancia);
-                }
-            }
-            distancias.put(trigram, distanciasTrigrama);
-        }
-        return distancias;
-    }
-
+	public static HashMap<String, List<Integer>> CalcularDistancias(HashMap<String, List<Integer>> trigramas) {
+		HashMap<String, List<Integer>> distancias = new HashMap<>();
+		for (Map.Entry<String, List<Integer>> entry : trigramas.entrySet()) {
+			String trigram = entry.getKey();
+			List<Integer> posiciones = entry.getValue();
+			List<Integer> distanciasTrigrama = new ArrayList<>();
+			if (posiciones.size() > 1) {
+				for (int i = 1; i < posiciones.size(); i++) {
+					int distancia = posiciones.get(i) - posiciones.get(i - 1);
+					distanciasTrigrama.add(distancia);
+				}
+			}
+			distancias.put(trigram, distanciasTrigrama);
+		}
+		return distancias;
+	}
 
 }
